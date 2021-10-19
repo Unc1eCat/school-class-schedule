@@ -19,6 +19,18 @@ class AppBloc extends Cubit {
 
     emit(AppStateScheduleItemsLoaded());
   }
+
+  ScheduleItem? getScheduleItemOfId(String id)
+  {
+    for (var i in scheduleItems)
+    {
+      var it = i.where((e) => e.id == id);
+
+      if (it.isNotEmpty) return it.first;
+    }
+    
+    return null;
+  }
 }
 
 class AppState

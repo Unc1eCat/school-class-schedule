@@ -12,7 +12,7 @@ List<List<ScheduleItem>> readScheduleItems(String input) {
     try {
       for (var j in ret) {
         for (var i in json['scheduleItems'][j]) {
-          var id = i['id'] ?? DateTime.now();
+          var id = i['id'] ?? DateTime.now().toString();
           var title = i['title'];
           var color = Color(i['color']);
           var begins = DateTime.parse(i['begins']);
