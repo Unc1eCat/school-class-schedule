@@ -1,0 +1,12 @@
+{
+    "scheduleItems": [
+        [
+            {
+                "id": "0",
+                "begins": "8:15",
+                "color": 4284078405,
+                "title": "Maths"
+            }
+        ]
+    ]
+}

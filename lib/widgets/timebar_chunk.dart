@@ -1,10 +1,14 @@
 import 'package:flutter/widgets.dart';
 
 class TimeBarChunk extends StatelessWidget {
-  const TimeBarChunk({Key? key}) : super(key: key);
+  final String id;
+
+  const TimeBarChunk({Key? key, required this.id}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    
+
+    return DecoratedBox(decoration: BoxDecoration(color: ));
   }
 }

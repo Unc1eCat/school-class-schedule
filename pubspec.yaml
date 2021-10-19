@@ -30,6 +30,10 @@ dependencies:
   provider: 
   flutter_bloc:
   equatable:
+  shared_preferences:
+  intl:
+  path_provider: ^2.0.2
+  path: ^1.6.4
   flutter:
     sdk: flutter
 
@@ -61,9 +65,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/models/schedule_items.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
