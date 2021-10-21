@@ -6,8 +6,21 @@ import 'package:school_class_schedule/bloc/app_bloc.dart';
 import 'package:school_class_schedule/widgets/timebar_chunk.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
-class TimeBar extends StatelessWidget {
+class TimeBar extends StatefulWidget {
   const TimeBar({Key? key}) : super(key: key);
+
+  @override
+  State<TimeBar> createState() => _TimeBarState();
+}
+
+class _TimeBarState extends State<TimeBar> with TickerProviderStateMixin {
+  AnimationController? _scaleController;
+
+  @override
+  void initState() {
+    _scaleController = AnimationController(vsync: this, duration: Duration(milliseconds: 10));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,63 +40,86 @@ class TimeBar extends StatelessWidget {
             ? SingleChildScrollView(
                 padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 16, left: 8, right: 16, bottom: 16),
                 physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                child: Stack(
-                  alignment: Alignment.topLeft,
-                  children: [
-                    SizedBox(
-                      width: 190,
-                      child: CustomPaint(
-                        painter: TimeScalePainter(
-                            timePerStroke: const Duration(minutes: 5),
-                            strokesPerBigStroke: 6,
-                            pixelsPerStroke: 25,
-                            color: Colors.grey[400]!,
-                            strokesBeforeFirstBig: 3,
-                            beginningTime: const Duration(hours: 8, minutes: 15),
-                            style: Theme.of(context).textTheme.bodyText2!),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 100.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: bloc.scheduleItems[0].map((e) => TimeBarChunk(id: e.id, pixelsPerMinute: 5)).toList()..removeLast(),
-                      ),
-                    ),
-                    PositionedTransition(
-                      rect: timeAnimation,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 72.0),
-                          child: DecoratedBox(
-                            child: SizedBox(width: 126, height: 8),
-                            decoration: BoxDecoration(borderRadius: BorderRadiusDirectional.circular(3), color: Theme.of(context).primaryColor),
-                          ),
+                child: GestureDetector(
+                  onScaleUpdate: (details) => _scaleController!.value = details.verticalScale,
+                  child: AnimatedBuilder(
+                    animation: _scaleController!,
+                    builder: (context, state) => SizedBox(
+                        width: 200,
+                        height: 6000,
+                        child: Stack(
+                          alignment: Alignment.topLeft,
+                          children: [
+                            Positioned.fill(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2.0),
+                                child: CustomPaint(
+                                  painter: TimeScalePainter(
+                                      timePerStroke: const Duration(minutes: 5),
+                                      strokesPerBigStroke: 6,
+                                      pixelsPerStroke: 25,
+                                      color: Colors.grey[400]!,
+                                      strokesBeforeFirstBig: 3,
+                                      beginningTime: const Duration(hours: 8, minutes: 15),
+                                      style: Theme.of(context).textTheme.bodyText2!),
+                                ),
+                              ),
+                            ),
+                            PositionedTransition(
+                              rect: timeAnimation,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Transform.translate(
+                                  offset: Offset(0, -8),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: ColoredBox(
+                                      color: Theme.of(context).canvasColor,
+                                      child: AnimatedBuilder(
+                                        animation: timeAnimation,
+                                        builder: (context, ch) => Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: Text("${DateTime.now().hour.toString().padLeft(2, "0")}:${DateTime.now().minute.remainder(60).toString().padLeft(2, "0")}",
+                                              style: curTimeStyle),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            PositionedTransition(
+                              rect: timeAnimation,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 44.0),
+                                  child: DecoratedBox(
+                                    child: SizedBox(width: double.infinity, height: 8),
+                                    decoration: BoxDecoration(borderRadius: BorderRadiusDirectional.circular(3), color: Theme.of(context).primaryColor),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 12,
+                              left: 60,
+                              top: 0,
+                              child: Column(
+                                children: bloc.scheduleItems[0]
+                                    .map((e) => TimeBarChunk(
+                                          id: e.id,
+                                          pixelsPerMinute: 5,
+                                          backgroundColor: Theme.of(context).canvasColor,
+                                        ))
+                                    .toList()
+                                  ..removeLast(),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                    PositionedTransition(
-                      rect: timeAnimation,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 26.0),
-                          child: Transform.translate(
-                            offset: Offset(0, -5),
-                            child: AnimatedBuilder(
-                                animation: timeAnimation,
-                                builder: (context, ch) {
-                                  return Text("${DateTime.now().hour.toString().padLeft(2, "0")}:${DateTime.now().minute.remainder(60).toString().padLeft(2, "0")}",
-                                      style: curTimeStyle);
-                                }),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                      )
+                  ),
                 ),
               )
             : SpinKitRotatingPlain(color: Theme.of(context).cardColor),
@@ -115,11 +151,11 @@ class TimeScalePainter extends CustomPainter {
   void paint(Canvas canvas, Size s) {
     var small = Paint()
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 2
+      ..strokeWidth = 1.2
       ..color = color;
     var big = Paint()
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 4
+      ..strokeWidth = 2.5
       ..color = color;
     var tp = TextPainter(
       textDirection: TextDirection.ltr,
@@ -132,7 +168,7 @@ class TimeScalePainter extends CustomPainter {
     for (var i = 0.0; i < 24.0 * 60.0 * pixelsPerStroke / timePerStroke.inMinutes; i += pixelsPerStroke) {
       if (smallUntilBig == 0) // Draw big
       {
-        canvas.drawLine(Offset(s.width, i), Offset(70, i), big);
+        canvas.drawLine(Offset(s.width - 3, i), Offset(36, i), big);
         smallUntilBig = strokesPerBigStroke - 1;
 
         tp.text = TextSpan(
@@ -140,10 +176,10 @@ class TimeScalePainter extends CustomPainter {
           style: style.copyWith(color: color),
         );
         tp.layout();
-        tp.paint(canvas, Offset(32, i - style.fontSize! / 2 / (style.height ?? 0.75)));
+        tp.paint(canvas, Offset(0, i - style.fontSize! / 2 / (style.height ?? 0.9)));
       } else {
         // Draw small
-        canvas.drawLine(Offset(s.width, i), Offset(78, i), small);
+        canvas.drawLine(Offset(s.width - 3, i), Offset(46, i), small);
         smallUntilBig--;
       }
       currentTime += timePerStroke;

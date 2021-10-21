@@ -38,7 +38,7 @@ class _TheAppState extends State<TheApp> {
             headline6: TextStyle(fontSize: 18),
             bodyText2: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          primaryColor: Colors.blueAccent[7],
+          primaryColor: Colors.blueAccent[700],
         ),
         routes: {
           '/': (ctx) => HomeScreen(),
